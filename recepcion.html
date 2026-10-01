@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Panel de Recepción - Firebase</title>
+  <style>
+    * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+    body { background-color: #f4f6f9; padding: 30px; display: flex; justify-content: center; }
+    .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 450px; }
+    h2 { color: #2c3e50; margin-bottom: 20px; text-align: center; }
+    .form-group { margin-bottom: 20px; }
+    label { display: block; margin-bottom: 8px; font-weight: bold; color: #34495e; }
+    input, select { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; }
+    input:focus, select:focus { border-color: #0984e3; outline: none; }
+    button { width: 100%; padding: 15px; background-color: #00b894; color: white; border: none; border-radius: 8px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+    button:hover { background-color: #00a884; }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>Llamar Paciente (Firebase)</h2>
+    <form id="turnForm">
+      <div class="form-group">
+        <label for="patient">Nombre del Paciente / Número:</label>
+        <input type="text" id="patient" placeholder="Ej: Juan Pérez o A-102" required autocomplete="off">
+      </div>
+
+      <div class="form-group">
+        <label for="office">Consultorio / Box:</label>
+        <select id="office" required>
+          <option value="1">Consultorio 1</option>
+          <option value="2">Consultorio 2</option>
+          <option value="3">Consultorio 3</option>
+          <option value="4">Consultorio 4</option>
+          <option value="5">Consultorio 5</option>
+        </select>
+      </div>
+
+      <button type="submit">📢 LLAMAR A PANTALLA</button>
+    </form>
+  </div>
+
+  <!-- SDKs de Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    // FIREBASE ⚠️
+   const firebaseConfig = {
+  apiKey: "AIzaSyB0jx2LYqsTv0P1W3E2bz2WdE8OtDXfLFQ",
+  authDomain: "turnero-clinica-394eb.firebaseapp.com",
+  databaseURL: "https://turnero-clinica-394eb-default-rtdb.firebaseio.com",
+  projectId: "turnero-clinica-394eb",
+  storageBucket: "turnero-clinica-394eb.firebasestorage.app",
+  messagingSenderId: "757280888834",
+  appId: "1:757280888834:web:4c95a56fde05de9024ef1b"
+};
+
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
+    document.getElementById('turnForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const patient = document.getElementById('patient').value.trim();
+      const office = document.getElementById('office').value;
+
+      // Enviar el turno a Firebase
+      set(ref(database, 'currentTurn'), {
+        patient: patient,
+        office: office,
+        timestamp: Date.now()
+      }).then(() => {
+        document.getElementById('patient').value = '';
+        document.getElementById('patient').focus();
+      }).catch((err) => {
+        alert("Error al enviar turno: " + err.message);
+      });
+    });
+  </script>
+</body>
+</html>

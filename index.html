@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Turnero & Publicidad TV</title>
+  <style>
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    }
+    body { 
+      display: flex; 
+      flex-direction: column; 
+      height: 100vh; 
+      background-color: #121212; 
+      color: #fff; 
+      overflow: hidden; 
+    }
+    
+    /* Contenedor Principal */
+    .main-container { 
+      display: flex; 
+      flex: 1; 
+      height: calc(100vh - 60px); 
+    }
+
+    /* Sección Izquierda: Publicidad (70%) */
+    .media-section { 
+      flex: 7; 
+      background-color: #000; 
+      position: relative; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      overflow: hidden; 
+    }
+    .media-section iframe { 
+      width: 100%; 
+      height: 100%; 
+      border: none; 
+    }
+
+    /* Sección Derecha: Turnero (30%) */
+    .turn-section { 
+      flex: 3; 
+      background-color: #1e1e2f; 
+      border-left: 4px solid #00d2d3; 
+      display: flex; 
+      flex-direction: column; 
+      padding: 20px; 
+    }
+    
+    /* Cartel de Turno Actual */
+    .current-call { 
+      background: linear-gradient(135deg, #0984e3, #6c5ce7); 
+      border-radius: 15px; 
+      padding: 25px; 
+      text-align: center; 
+      margin-bottom: 25px; 
+      box-shadow: 0 10px 20px rgba(0,0,0,0.5); 
+    }
+    .current-call h2 { 
+      font-size: 1.5rem; 
+      text-transform: uppercase; 
+      letter-spacing: 2px; 
+      color: #dfe6e9; 
+    }
+    .patient-name { 
+      font-size: 2.8rem; 
+      font-weight: bold; 
+      margin: 15px 0; 
+      color: #fff; 
+      word-break: break-word; 
+    }
+    .office-number { 
+      font-size: 2.2rem; 
+      background: #ff7675; 
+      padding: 10px; 
+      border-radius: 10px; 
+      font-weight: bold; 
+      display: inline-block; 
+      min-width: 80%; 
+    }
+
+    /* Historial de Turnos */
+    .history-title { 
+      font-size: 1.2rem; 
+      color: #a4b0be; 
+      margin-bottom: 10px; 
+      text-transform: uppercase; 
+      border-bottom: 1px solid #57606f; 
+      padding-bottom: 5px; 
+    }
+    .history-list { 
+      list-style: none; 
+      overflow-y: auto; 
+      flex: 1; 
+    }
+    .history-item { 
+      background: #2f3542; 
+      padding: 12px 15px; 
+      border-radius: 8px; 
+      margin-bottom: 10px; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      font-size: 1.2rem; 
+    }
+    .history-item .h-office { 
+      color: #70a1ff; 
+      font-weight: bold; 
+    }
+
+    /* Cinta inferior (Marquee) */
+    .ticker-bar { 
+      height: 60px; 
+      background-color: #0984e3; 
+      color: white; 
+      display: flex; 
+      align-items: center; 
+      overflow: hidden; 
+      white-space: nowrap; 
+      font-size: 1.5rem; 
+      font-weight: bold; 
+    }
+    .ticker-content { 
+      display: inline-block; 
+      padding-left: 100%; 
+      animation: marquee 25s linear infinite; 
+    }
+    @keyframes marquee { 
+      0% { transform: translate(0, 0); } 
+      100% { transform: translate(-100%, 0); } 
+    }
+  </style>
+</head>
+<body>
+
+  <div class="main-container">
+    <!-- ÁREA DE PUBLICIDAD (VIDEO DE YOUTUBE EN BUCLE) -->
+    <div class="media-section" id="mediaPlayer">
+      <iframe 
+        src="https://www.youtube-nocookie.com/embed/cb12KmMMDJA?autoplay=1&mute=1&loop=1&playlist=cb12KmMMDJA&controls=0&rel=0" 
+        title="Publicidad Institucional" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+        allowfullscreen>
+      </iframe>
+    </div>
+
+    <!-- ÁREA DE TURNOS -->
+    <div class="turn-section">
+      <div class="current-call">
+        <h2>Llamado Actual</h2>
+        <div class="patient-name" id="currentPatient">--</div>
+        <div class="office-number" id="currentOffice">CONSULTORIO --</div>
+      </div>
+
+      <div class="history-title">Últimos llamados</div>
+      <ul class="history-list" id="historyList"></ul>
+    </div>
+  </div>
+
+  <!-- CINTA DE INFORMACIÓN INFERIOR -->
+  <div class="ticker-bar">
+    <div class="ticker-content">
+      📢 Bienvenidos Anunciese y espere a ser llamado en pantalla • Recuerde tener su Denuncia a mano • Horario de atención: 08:00 a 17:00 hs.
+    </div>
+  </div>
+
+  <!-- FIREBASE INTEGRACIÓN -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    // FIREBASE CONSOLE ⚠️
+    const firebaseConfig = {
+  apiKey: "AIzaSyB0jx2LYqsTv0P1W3E2bz2WdE8OtDXfLFQ",
+  authDomain: "turnero-clinica-394eb.firebaseapp.com",
+  databaseURL: "https://turnero-clinica-394eb-default-rtdb.firebaseio.com",
+  projectId: "turnero-clinica-394eb",
+  storageBucket: "turnero-clinica-394eb.firebasestorage.app",
+  messagingSenderId: "757280888834",
+  appId: "1:757280888834:web:4c95a56fde05de9024ef1b"
+};
+
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
+    let turnsHistory = [];
+    let initialLoad = true;
+
+    // Escuchar cambios en la base de datos en tiempo real
+    const currentTurnRef = ref(database, 'currentTurn');
+    onValue(currentTurnRef, (snapshot) => {
+      const data = snapshot.val();
+      if (!data) return;
+
+      // Evita reproducir audio cuando la pantalla se carga por primera vez
+      if (initialLoad) {
+        initialLoad = false;
+        updateUI(data.patient, data.office);
+        return;
+      }
+
+      updateUI(data.patient, data.office);
+      speakTurn(`Atención. Paciente ${data.patient}, pasar al consultorio ${data.office}`);
+    });
+
+    function updateUI(patient, office) {
+      document.getElementById('currentPatient').innerText = patient;
+      document.getElementById('currentOffice').innerText = `CONSULTORIO ${office}`;
+
+      turnsHistory.unshift({ patient, office });
+      if (turnsHistory.length > 6) turnsHistory.pop();
+
+      const list = document.getElementById('historyList');
+      list.innerHTML = '';
+      turnsHistory.slice(1).forEach(t => {
+        const li = document.createElement('li');
+        li.className = 'history-item';
+        li.innerHTML = `<span>${t.patient}</span><span class="h-office">Cons. ${t.office}</span>`;
+        list.appendChild(li);
+      });
+    }
+
+    function speakTurn(text) {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'es-AR';
+        utterance.rate = 0.9;
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+  </script>
+</body>
+</html>
