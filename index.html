@@ -58,11 +58,11 @@
       padding: 20px; 
     }
     
-    /* Cartel de Llamado Actual con Animación Súper Llamativa */
+    /* Cartel de Llamado Actual con Animación Flash */
     .current-call { 
       background: linear-gradient(135deg, #0984e3, #6c5ce7); 
       border-radius: 16px; 
-      padding: 25px; 
+      padding: 22px; 
       text-align: center; 
       margin-bottom: 20px; 
       box-shadow: 0 10px 25px rgba(0,0,0,0.6); 
@@ -79,7 +79,7 @@
     }
 
     .current-call h2 { 
-      font-size: 1.3rem; 
+      font-size: 1.2rem; 
       text-transform: uppercase; 
       letter-spacing: 2px; 
       color: #dfe6e9; 
@@ -87,35 +87,48 @@
     }
 
     .patient-name { 
-      font-size: 2.5rem; 
+      font-size: 2.3rem; 
       font-weight: 800; 
-      margin: 10px 0; 
+      margin: 8px 0; 
       color: #fff; 
       word-break: break-word; 
       line-height: 1.2; 
     }
 
     .attention-badge { 
-      font-size: 1rem; 
+      font-size: 0.95rem; 
       background: rgba(0,0,0,0.3); 
-      padding: 5px 12px; 
+      padding: 4px 12px; 
       border-radius: 20px; 
       display: inline-block; 
-      margin-bottom: 12px; 
+      margin-bottom: 10px; 
       color: #74b9ff; 
       font-weight: 600; 
     }
 
-    .office-number { 
-      font-size: 2rem; 
+    .office-container {
       background: #ff7675; 
-      padding: 10px; 
+      padding: 12px; 
       border-radius: 10px; 
-      font-weight: bold; 
       display: block; 
       width: 100%; 
       color: #fff; 
       text-shadow: 0 1px 2px rgba(0,0,0,0.2); 
+    }
+
+    .office-number { 
+      font-size: 1.6rem; 
+      font-weight: bold; 
+      display: block;
+    }
+
+    .doctor-name {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #ffeaa7;
+      display: block;
+      margin-top: 4px;
+      letter-spacing: 1px;
     }
 
     /* Historial */
@@ -150,19 +163,20 @@
       border-left: 3px solid var(--accent-blue); 
     }
 
-    .history-item .h-patient { font-size: 1.1rem; font-weight: bold; color: var(--text-main); display: block; }
-    .history-item .h-type { font-size: 0.8rem; color: var(--text-muted); display: block; }
+    .history-item .h-patient { font-size: 1.05rem; font-weight: bold; color: var(--text-main); display: block; }
+    .history-item .h-doctor { font-size: 0.85rem; color: #ffeaa7; display: block; font-weight: 600; }
     
     .history-item .h-office { 
       color: #58a6ff; 
       font-weight: bold; 
-      font-size: 1.1rem; 
+      font-size: 0.95rem; 
       background: rgba(88, 166, 255, 0.1); 
-      padding: 5px 10px; 
+      padding: 6px 10px; 
       border-radius: 6px; 
+      text-align: right;
     }
 
-    /* Cinta inferior (Marquee) */
+    /* Cinta inferior */
     .ticker-bar { 
       height: 60px; 
       background-color: #1f6feb; 
@@ -191,18 +205,19 @@
 <body>
 
   <div class="main-container">
-    <!-- Reproductor de YouTube -->
     <section class="media-section" aria-label="Reproductor multimedia">
       <div id="youtube-player"></div>
     </section>
 
-    <!-- Panel de Turnos -->
     <section class="turn-section" aria-label="Panel de turnos">
       <div class="current-call" id="currentCallCard">
         <h2>Llamado Actual</h2>
         <div class="patient-name" id="currentPatient">Esperando...</div>
         <div class="attention-badge" id="currentAttentionType">--</div>
-        <div class="office-number" id="currentOffice">CONSULTORIO --</div>
+        <div class="office-container">
+          <span class="office-number" id="currentOffice">CONSULTORIO --</span>
+          <span class="doctor-name" id="currentDoctor">--</span>
+        </div>
       </div>
 
       <h3 class="history-title">Últimos turnos llamados</h3>
@@ -210,14 +225,12 @@
     </section>
   </div>
 
-  <!-- Cinta informativa inferior -->
   <footer class="ticker-bar">
     <div class="ticker-content">
       📢 Atención ART • Recuerde tener su DNI y Denuncia a mano • Mantenga el celular en silencio en la sala • Horario administrativo: 08:00 a 17:00 hs.
     </div>
   </footer>
 
-  <!-- API de YouTube (Volumen 70%) -->
   <script src="https://www.youtube.com/iframe_api"></script>
   <script>
     let ytPlayer;
@@ -251,7 +264,6 @@
     };
   </script>
 
-  <!-- Firebase y Lógica del Turnero con Alerta Visual y Doble Campana -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -272,12 +284,10 @@
     let turnsHistory = [];
     let initialLoad = true;
 
-    // Doble campanita digital más larga y llamativa
     function playLongChime() {
       try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         
-        // Primer tono
         const osc1 = audioCtx.createOscillator();
         const gain1 = audioCtx.createGain();
         osc1.type = 'sine';
@@ -290,7 +300,6 @@
         osc1.start();
         osc1.stop(audioCtx.currentTime + 1.2);
 
-        // Segundo tono (efecto ding-dong prolongado)
         setTimeout(() => {
           const osc2 = audioCtx.createOscillator();
           const gain2 = audioCtx.createGain();
@@ -306,43 +315,42 @@
         }, 400);
 
       } catch (e) {
-        console.log("Error reproduciendo audio extendido", e);
+        console.log("Error de audio", e);
       }
     }
 
-    // Escuchar turnos en tiempo real
     onValue(ref(db, 'currentTurn'), (snapshot) => {
       const data = snapshot.val();
       if (!data) return;
 
       if (initialLoad) {
         initialLoad = false;
-        updateUI(data.patient, data.attentionType, data.office, false);
+        updateUI(data.patient, data.attentionType, data.office, data.doctor, false);
         return;
       }
 
-      updateUI(data.patient, data.attentionType, data.office, true);
+      updateUI(data.patient, data.attentionType, data.office, data.doctor, true);
       playLongChime();
     });
 
-    function updateUI(patient, attentionType, office, triggerAnimation) {
+    function updateUI(patient, attentionType, office, doctor, triggerAnimation) {
       document.getElementById('currentPatient').innerText = patient;
       document.getElementById('currentAttentionType').innerText = attentionType || 'Atención Médica';
-      document.getElementById('currentOffice').innerText = `CONSULTORIO ${office}`;
+      document.getElementById('currentOffice').innerText = office;
+      document.getElementById('currentDoctor').innerText = doctor;
 
       if (triggerAnimation) {
         const card = document.getElementById('currentCallCard');
         card.classList.remove('flash');
-        void card.offsetWidth; // Reiniciar animación
+        void card.offsetWidth; 
         card.classList.add('flash');
 
-        // El parpadeo dura 6 segundos y luego vuelve a la normalidad
         setTimeout(() => {
           card.classList.remove('flash');
         }, 6000);
       }
 
-      turnsHistory.unshift({ patient, attentionType, office });
+      turnsHistory.unshift({ patient, attentionType, office, doctor });
       if (turnsHistory.length > 5) turnsHistory.pop();
 
       const list = document.getElementById('historyList');
@@ -354,9 +362,9 @@
         li.innerHTML = `
           <div>
             <span class="h-patient">${t.patient}</span>
-            <span class="h-type">${t.attentionType || 'General'}</span>
+            <span class="h-doctor">${t.doctor}</span>
           </div>
-          <span class="h-office">Cons. ${t.office}</span>
+          <span class="h-office">${t.office}</span>
         `;
         list.appendChild(li);
       });
