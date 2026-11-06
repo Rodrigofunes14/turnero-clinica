@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TURNERO ART</title>
+  <title>Panel de Recepción ART - Clínica</title>
   <style>
     * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body { background-color: #f4f6f9; padding: 30px; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
@@ -27,27 +27,24 @@
     <h2>Llamar Paciente (ART)</h2>
     <form id="turnForm">
       <div class="form-group">
-        <label for="patient">Apellido y Nombre:</label>
-        <input type="text" id="patient" placeholder="Ej: Contalba, Mauricio" required autocomplete="off">
+        <label for="patient">Paciente / Apellido y Nombre:</label>
+        <input type="text" id="patient" placeholder="Ej: Pérez, Juan (Siniestro #45821)" required autocomplete="off">
       </div>
 
       <div class="form-group">
         <label for="attentionType">Tipo de Atención:</label>
         <select id="attentionType">
-          <option value="Consultorio Médico">Consultorio Médico</option>
-            </select>
+          <option value="Consultorio Médico">Consultorio Médico / Traumatología</option>          
+        </select>
       </div>
 
       <div class="form-group">
-        <label for="office">Consultorio:</label>
+        <label for="office">Médico Consultorio Asignado:</label>
         <select id="office" required>
-          <option value="1">DR GATTI CONSULTORIO ART 1</option>
-          <option value="2">DR PASCUTTINI CONSULTORIO ART 2</option>
-          <option value="3">DR HERNANDEZ CONSULTORIO 8</option>
-          <option value="4">DR CHAVARRI CONSULTORIO ART 1</option>
-          <option value="5">DR HERMOSA CONSULTORIO ART 1</option>
-          <option value="6">DR FIORENTINO CONSULTORIO ART 1</option>
-          <option value="7">DR LEITON CONSULTORIO ART 1</option>
+          <option value="1">Consultorio 1</option>
+          <option value="2">Consultorio 2</option>
+          <option value="3">Consultorio 3</option>
+          <option value="4">Consultorio 4</option>      
         </select>
       </div>
 
@@ -60,15 +57,16 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
+    // NUEVA CONFIGURACIÓN FIREBASE
     const firebaseConfig = {
-  apiKey: "AIzaSyCoMlaioT8CBGwKvPt86MGqOSdp1sapqdU",
-  authDomain: "turnero-34d14.firebaseapp.com",
-  databaseURL: "https://turnero-34d14-default-rtdb.firebaseio.com",
-  projectId: "turnero-34d14",
-  storageBucket: "turnero-34d14.firebasestorage.app",
-  messagingSenderId: "244772189408",
-  appId: "1:244772189408:web:cd444c47bf47e33c3c0c85"
-};
+      apiKey: "AIzaSyCoMlaioT8CBGwKvPt86MGqOSdp1sapqdU",
+      authDomain: "turnero-34d14.firebaseapp.com",
+      databaseURL: "https://turnero-34d14-default-rtdb.firebaseio.com",
+      projectId: "turnero-34d14",
+      storageBucket: "turnero-34d14.firebasestorage.app",
+      messagingSenderId: "244772189408",
+      appId: "1:244772189408:web:cd444c47bf47e33c3c0c85"
+    };
 
     const app = initializeApp(firebaseConfig);
     const database = getDatabase(app);
@@ -87,7 +85,6 @@
       btn.innerText = "Enviando...";
 
       try {
-        // Guardamos únicamente el turno actual (sin bases de datos históricas pesadas)
         await set(ref(database, 'currentTurn'), {
           patient,
           attentionType,
