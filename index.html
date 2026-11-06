@@ -203,7 +203,7 @@
         <h2>Llamado Actual</h2>
         <div class="patient-name" id="currentPatient">Esperando...</div>
         <div class="attention-badge" id="currentAttentionType">--</div>
-        <div class="office-number" id="currentOffice">CONSULTORIO --</div>
+        <div class="office-number" id="currentOffice">--</div>
       </div>
 
       <h3 class="history-title">Últimos turnos llamados</h3>
@@ -298,15 +298,31 @@
     }
 
     // Síntesis de voz en español argentino
-    function speakTurn(text) {
+   function speakTurn(text) {
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(text);
+        
+        // Buscamos una voz en español disponible en el dispositivo
+        const voices = window.speechSynthesis.getVoices();
+        const spanishVoice = voices.find(v => v.lang.startsWith('es'));
+        if (spanishVoice) {
+          utterance.voice = spanishVoice;
+        }
+
         utterance.lang = 'es-AR';
         utterance.rate = 0.92;
         utterance.pitch = 1.0;
+        
         window.speechSynthesis.speak(utterance);
       }
+    }
+
+    // Asegurar que las voces se carguen correctamente en algunos navegadores
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.getVoices();
+      };
     }
 
     // Escuchar turnos en tiempo real
