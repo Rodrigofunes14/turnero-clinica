@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DEPARTAMENTO DE ART - POLICLINICA SAN RAFAEL</title>
+  <title>Sala de Espera - Turnero & Publicidad ART</title>
   <style>
     :root {
       --bg-main: #0d1117;
@@ -58,7 +58,7 @@
       padding: 20px; 
     }
     
-    /* Cartel de Llamado Actual */
+    /* Cartel de Llamado Actual con Animación Súper Llamativa */
     .current-call { 
       background: linear-gradient(135deg, #0984e3, #6c5ce7); 
       border-radius: 16px; 
@@ -69,14 +69,13 @@
       transition: transform 0.2s ease;
     }
     
-    .current-call.pulse { 
-      animation: pulseCard 0.8s ease; 
+    .current-call.flash { 
+      animation: flashAlert 0.6s ease infinite alternate; 
     }
     
-    @keyframes pulseCard {
-      0% { transform: scale(1); filter: brightness(1); }
-      50% { transform: scale(1.03); filter: brightness(1.25); background: linear-gradient(135deg, #00b894, #0984e3); }
-      100% { transform: scale(1); filter: brightness(1); }
+    @keyframes flashAlert {
+      0% { transform: scale(1); background: linear-gradient(135deg, #0984e3, #6c5ce7); filter: brightness(1); box-shadow: 0 0 10px rgba(0, 210, 211, 0.5); }
+      100% { transform: scale(1.04); background: linear-gradient(135deg, #00b894, #e17055); filter: brightness(1.4); box-shadow: 0 0 35px #00d2d3; }
     }
 
     .current-call h2 { 
@@ -214,7 +213,7 @@
   <!-- Cinta informativa inferior -->
   <footer class="ticker-bar">
     <div class="ticker-content">
-      POLICLINICA SAN RAFAEL NO ES UNA ART // ESPECIALIDADES: ORTOPEDIA Y TRAUMATOLOGÍA CON ESPECIALISTAS EN MIEMBRO SUPERIOR, INFERIOR, ARTROSCOPISTAS Y NIÑOS - NEUROCIRUGÍA - CARDIOLOGÍA - CIRUGÍA PLÁSTICA Y GENERAL - INFECTOLOGÍA - CLÍNICA MÉDICA - OFTALMOLOGÍA - PSICOLOGÍA - UROLOGÍA - GINECOLOGÍA // RECUERDE TRAER LA DENUNCIA DE SINIESTRO // ANTENCION ADMINISTRATIVA DE 08:00 A 17:00 HS
+      📢 Atención ART • Recuerde tener su DNI y Denuncia a mano • Mantenga el celular en silencio en la sala • Horario administrativo: 08:00 a 17:00 hs.
     </div>
   </footer>
 
@@ -252,7 +251,7 @@
     };
   </script>
 
-  <!-- Firebase y Lógica del Turnero con Activación Forzada de Voz -->
+  <!-- Firebase y Lógica del Turnero con Alerta Visual y Doble Campana -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -272,63 +271,42 @@
 
     let turnsHistory = [];
     let initialLoad = true;
-    let audioUnlocked = false;
 
-    // Forzar activación del sintetizador con el primer toque en pantalla
-    window.addEventListener('click', () => {
-      if (!audioUnlocked) {
-        if ('speechSynthesis' in window) {
-          const dummy = new SpeechSynthesisUtterance('');
-          window.speechSynthesis.speak(dummy);
-        }
-        audioUnlocked = true;
-        console.log("Audio y voz desbloqueados por interacción del usuario.");
-      }
-    }, { once: true });
-
-    // Alerta sonora (Campana Digital)
-    function playChime() {
+    // Doble campanita digital más larga y llamativa
+    function playLongChime() {
       try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); 
-        osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15); 
-
-        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.8);
-
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.8);
-      } catch (e) {
-        console.log("Error en audio WebAPI", e);
-      }
-    }
-
-    // Síntesis de voz mejorada y forzada
-    function speakTurn(text) {
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
         
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'es-AR';
-        utterance.rate = 0.90; 
-        utterance.pitch = 1.0;
+        // Primer tono
+        const osc1 = audioCtx.createOscillator();
+        const gain1 = audioCtx.createGain();
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(587.33, audioCtx.currentTime); 
+        osc1.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.3); 
+        gain1.gain.setValueAtTime(0.4, audioCtx.currentTime);
+        gain1.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.2);
+        osc1.connect(gain1);
+        gain1.connect(audioCtx.destination);
+        osc1.start();
+        osc1.stop(audioCtx.currentTime + 1.2);
 
-        const voices = window.speechSynthesis.getVoices();
-        const spanishVoice = voices.find(v => v.lang.includes('es') || v.lang.includes('ES'));
-        if (spanishVoice) {
-          utterance.voice = spanishVoice;
-        }
+        // Segundo tono (efecto ding-dong prolongado)
+        setTimeout(() => {
+          const osc2 = audioCtx.createOscillator();
+          const gain2 = audioCtx.createGain();
+          osc2.type = 'sine';
+          osc2.frequency.setValueAtTime(783.99, audioCtx.currentTime); 
+          osc2.frequency.exponentialRampToValueAtTime(587.33, audioCtx.currentTime + 0.4); 
+          gain2.gain.setValueAtTime(0.4, audioCtx.currentTime);
+          gain2.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.5);
+          osc2.connect(gain2);
+          gain2.connect(audioCtx.destination);
+          osc2.start();
+          osc2.stop(audioCtx.currentTime + 1.5);
+        }, 400);
 
-        window.speechSynthesis.speak(utterance);
-      } else {
-        console.log("Este navegador no soporta síntesis de voz.");
+      } catch (e) {
+        console.log("Error reproduciendo audio extendido", e);
       }
     }
 
@@ -344,11 +322,7 @@
       }
 
       updateUI(data.patient, data.attentionType, data.office, true);
-      playChime();
-      
-      setTimeout(() => {
-        speakTurn(`Atención. Paciente ${data.patient}. Pasar al consultorio ${data.office}`);
-      }, 500);
+      playLongChime();
     });
 
     function updateUI(patient, attentionType, office, triggerAnimation) {
@@ -358,9 +332,14 @@
 
       if (triggerAnimation) {
         const card = document.getElementById('currentCallCard');
-        card.classList.remove('pulse');
-        void card.offsetWidth; 
-        card.classList.add('pulse');
+        card.classList.remove('flash');
+        void card.offsetWidth; // Reiniciar animación
+        card.classList.add('flash');
+
+        // El parpadeo dura 6 segundos y luego vuelve a la normalidad
+        setTimeout(() => {
+          card.classList.remove('flash');
+        }, 6000);
       }
 
       turnsHistory.unshift({ patient, attentionType, office });
