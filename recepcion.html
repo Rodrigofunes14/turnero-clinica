@@ -3,27 +3,108 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panel de Recepción ART - Clínica</title>
+  <title>Panel de Recepción ART</title>
   <style>
+    :root {
+      --primary: #0984e3;
+      --primary-hover: #0765b2;
+      --success: #00b894;
+      --success-hover: #009977;
+      --bg-color: #f4f6f9;
+      --card-bg: #ffffff;
+      --text-main: #2c3e50;
+      --text-muted: #34495e;
+      --border-color: #dfe6e9;
+    }
+
     * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    body { background-color: #f4f6f9; padding: 30px; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-    .card { background: white; padding: 30px; border-radius: 14px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
-    h2 { color: #2c3e50; margin-bottom: 25px; text-align: center; font-size: 1.6rem; border-bottom: 2px solid #0984e3; padding-bottom: 10px; }
+    
+    body { 
+      background-color: var(--bg-color); 
+      margin: 0; 
+      min-height: 100vh; 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      padding: 20px; 
+    }
+
+    .card { 
+      background: var(--card-bg); 
+      padding: 35px; 
+      border-radius: 16px; 
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
+      width: 100%; 
+      max-width: 480px; 
+    }
+
+    h2 { 
+      color: var(--text-main); 
+      margin-top: 0;
+      margin-bottom: 25px; 
+      text-align: center; 
+      font-size: 1.5rem; 
+      border-bottom: 2px solid var(--primary); 
+      padding-bottom: 12px; 
+    }
+
     .form-group { margin-bottom: 20px; }
-    label { display: block; margin-bottom: 8px; font-weight: 600; color: #34495e; }
-    input, select { width: 100%; padding: 12px; border: 2px solid #dfe6e9; border-radius: 8px; font-size: 1rem; transition: border-color 0.2s; }
-    input:focus, select:focus { border-color: #0984e3; outline: none; box-shadow: 0 0 5px rgba(9, 132, 227, 0.3); }
-    button { width: 100%; padding: 16px; background-color: #00b894; color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: background 0.2s, transform 0.1s; }
-    button:hover { background-color: #00a884; }
+
+    label { 
+      display: block; 
+      margin-bottom: 8px; 
+      font-weight: 600; 
+      color: var(--text-muted); 
+      font-size: 0.95rem;
+    }
+
+    input, select { 
+      width: 100%; 
+      padding: 12px 15px; 
+      border: 2px solid var(--border-color); 
+      border-radius: 8px; 
+      font-size: 1rem; 
+      transition: border-color 0.2s, box-shadow 0.2s; 
+    }
+
+    input:focus, select:focus { 
+      border-color: var(--primary); 
+      outline: none; 
+      box-shadow: 0 0 0 3px rgba(9, 132, 227, 0.15); 
+    }
+
+    button { 
+      width: 100%; 
+      padding: 15px; 
+      background-color: var(--success); 
+      color: white; 
+      border: none; 
+      border-radius: 8px; 
+      font-size: 1.1rem; 
+      font-weight: bold; 
+      cursor: pointer; 
+      transition: background 0.2s, transform 0.1s; 
+      margin-top: 10px;
+    }
+
+    button:hover { background-color: var(--success-hover); }
     button:active { transform: scale(0.98); }
-    .status-msg { margin-top: 15px; text-align: center; font-weight: bold; font-size: 0.95rem; min-height: 24px; }
-    .success { color: #00b894; }
-    .error { color: #d63031; }
+    button:disabled { background-color: #b2bec3; cursor: not-allowed; }
+
+    .status-msg { 
+      margin-top: 18px; 
+      text-align: center; 
+      font-weight: bold; 
+      font-size: 0.95rem; 
+      min-height: 24px; 
+    }
+    .success-text { color: var(--success); }
+    .error-text { color: #d63031; }
   </style>
 </head>
 <body>
 
-  <div class="card">
+  <main class="card">
     <h2>Llamar Paciente (ART)</h2>
     <form id="turnForm">
       <div class="form-group">
@@ -34,30 +115,33 @@
       <div class="form-group">
         <label for="attentionType">Tipo de Atención:</label>
         <select id="attentionType">
-          <option value="Consultorio Médico">Consultorio Médico / Traumatología</option>          
+          <option value="Consultorio Médico">Consultorio Médico / Traumatología</option>
+          <option value="Kinesiología">Kinesiología / Rehabilitación</option>
+          <option value="Control / Admisión">Control / Auditoría Médica</option>
+          <option value="Psicología / Legal">Evaluación / Junta Médica</option>
         </select>
       </div>
 
       <div class="form-group">
-        <label for="office">Médico Consultorio Asignado:</label>
+        <label for="office">Consultorio / Box Asignado:</label>
         <select id="office" required>
           <option value="1">Consultorio 1</option>
           <option value="2">Consultorio 2</option>
           <option value="3">Consultorio 3</option>
-          <option value="4">Consultorio 4</option>      
+          <option value="4">Consultorio 4</option>
+          <option value="5">Box de Kinesiología</option>
         </select>
       </div>
 
       <button type="submit" id="btnSubmit">📢 LLAMAR A PANTALLA</button>
-      <div id="statusMsg" class="status-msg"></div>
+      <div id="statusMsg" class="status-msg" aria-live="polite"></div>
     </form>
-  </div>
+  </main>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    // NUEVA CONFIGURACIÓN FIREBASE
     const firebaseConfig = {
       apiKey: "AIzaSyCoMlaioT8CBGwKvPt86MGqOSdp1sapqdU",
       authDomain: "turnero-34d14.firebaseapp.com",
@@ -69,42 +153,41 @@
     };
 
     const app = initializeApp(firebaseConfig);
-    const database = getDatabase(app);
+    const db = getDatabase(app);
 
     const form = document.getElementById('turnForm');
     const statusMsg = document.getElementById('statusMsg');
+    const btnSubmit = document.getElementById('btnSubmit');
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const patient = document.getElementById('patient').value.trim();
       const attentionType = document.getElementById('attentionType').value;
       const office = document.getElementById('office').value;
-      const btn = document.getElementById('btnSubmit');
 
-      btn.disabled = true;
-      btn.innerText = "Enviando...";
+      btnSubmit.disabled = true;
+      btnSubmit.innerText = "Enviando...";
 
       try {
-        await set(ref(database, 'currentTurn'), {
+        await set(ref(db, 'currentTurn'), {
           patient,
           attentionType,
           office,
           timestamp: Date.now()
         });
 
-        statusMsg.className = "status-msg success";
+        statusMsg.className = "status-msg success-text";
         statusMsg.innerText = "¡Turno enviado con éxito!";
         
         form.reset();
         document.getElementById('patient').focus();
-        
-        setTimeout(() => { statusMsg.innerText = ""; }, 3000);
       } catch (err) {
-        statusMsg.className = "status-msg error";
+        statusMsg.className = "status-msg error-text";
         statusMsg.innerText = "Error: " + err.message;
       } finally {
-        btn.disabled = false;
-        btn.innerText = "📢 LLAMAR A PANTALLA";
+        btnSubmit.disabled = false;
+        btnSubmit.innerText = "📢 LLAMAR A PANTALLA";
+        setTimeout(() => { statusMsg.innerText = ""; }, 3000);
       }
     });
   </script>
