@@ -5,18 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sala de Espera - Turnero & Publicidad ART</title>
   <style>
-    * { 
-      box-sizing: border-box; 
-      margin: 0; 
-      padding: 0; 
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    :root {
+      --bg-main: #0d1117;
+      --panel-bg: #161b22;
+      --border-color: #30363d;
+      --accent-blue: #0984e3;
+      --accent-cyan: #00d2d3;
+      --text-main: #f0f6fc;
+      --text-muted: #8b949e;
     }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    
     body { 
       display: flex; 
       flex-direction: column; 
       height: 100vh; 
-      background-color: #0d1117; 
-      color: #fff; 
+      background-color: var(--bg-main); 
+      color: var(--text-main); 
       overflow: hidden; 
     }
     
@@ -26,7 +32,7 @@
       height: calc(100vh - 60px); 
     }
 
-    /* Área Izquierda: YouTube (68%) */
+    /* Sección Izquierda: YouTube (68%) */
     .media-section { 
       flex: 6.8; 
       background-color: #000; 
@@ -42,16 +48,17 @@
       pointer-events: none; 
     }
 
-    /* Área Derecha: Turnero (32%) */
+    /* Sección Derecha: Turnero (32%) */
     .turn-section { 
       flex: 3.2; 
-      background-color: #161b22; 
-      border-left: 4px solid #00d2d3; 
+      background-color: var(--panel-bg); 
+      border-left: 4px solid var(--accent-cyan); 
       display: flex; 
       flex-direction: column; 
       padding: 20px; 
     }
     
+    /* Cartel de Llamado Actual */
     .current-call { 
       background: linear-gradient(135deg, #0984e3, #6c5ce7); 
       border-radius: 16px; 
@@ -65,6 +72,7 @@
     .current-call.pulse { 
       animation: pulseCard 0.8s ease; 
     }
+    
     @keyframes pulseCard {
       0% { transform: scale(1); filter: brightness(1); }
       50% { transform: scale(1.03); filter: brightness(1.25); background: linear-gradient(135deg, #00b894, #0984e3); }
@@ -78,6 +86,7 @@
       color: #dfe6e9; 
       margin-bottom: 5px; 
     }
+
     .patient-name { 
       font-size: 2.5rem; 
       font-weight: 800; 
@@ -86,6 +95,7 @@
       word-break: break-word; 
       line-height: 1.2; 
     }
+
     .attention-badge { 
       font-size: 1rem; 
       background: rgba(0,0,0,0.3); 
@@ -96,6 +106,7 @@
       color: #74b9ff; 
       font-weight: 600; 
     }
+
     .office-number { 
       font-size: 2rem; 
       background: #ff7675; 
@@ -108,23 +119,26 @@
       text-shadow: 0 1px 2px rgba(0,0,0,0.2); 
     }
 
+    /* Historial */
     .history-title { 
       font-size: 1.1rem; 
-      color: #8b949e; 
+      color: var(--text-muted); 
       margin-bottom: 12px; 
       text-transform: uppercase; 
-      border-bottom: 1px solid #30363d; 
+      border-bottom: 1px solid var(--border-color); 
       padding-bottom: 6px; 
       font-weight: bold; 
     }
+
     .history-list { 
       list-style: none; 
       overflow-y: auto; 
       flex: 1; 
       padding-right: 4px; 
     }
+    
     .history-list::-webkit-scrollbar { width: 6px; }
-    .history-list::-webkit-scrollbar-thumb { background: #30363d; border-radius: 4px; }
+    .history-list::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
     
     .history-item { 
       background: #21262d; 
@@ -134,11 +148,12 @@
       display: flex; 
       justify-content: space-between; 
       align-items: center; 
-      border-left: 3px solid #0984e3; 
+      border-left: 3px solid var(--accent-blue); 
     }
-    .history-item .h-info span { display: block; }
-    .history-item .h-patient { font-size: 1.1rem; font-weight: bold; color: #f0f6fc; }
-    .history-item .h-type { font-size: 0.8rem; color: #8b949e; }
+
+    .history-item .h-patient { font-size: 1.1rem; font-weight: bold; color: var(--text-main); display: block; }
+    .history-item .h-type { font-size: 0.8rem; color: var(--text-muted); display: block; }
+    
     .history-item .h-office { 
       color: #58a6ff; 
       font-weight: bold; 
@@ -148,6 +163,7 @@
       border-radius: 6px; 
     }
 
+    /* Cinta inferior (Marquee) */
     .ticker-bar { 
       height: 60px; 
       background-color: #1f6feb; 
@@ -160,11 +176,13 @@
       font-weight: bold; 
       box-shadow: 0 -4px 10px rgba(0,0,0,0.3); 
     }
+
     .ticker-content { 
       display: inline-block; 
       padding-left: 100%; 
       animation: marquee 30s linear infinite; 
     }
+
     @keyframes marquee { 
       0% { transform: translate(0, 0); } 
       100% { transform: translate(-100%, 0); } 
@@ -174,11 +192,13 @@
 <body>
 
   <div class="main-container">
-    <div class="media-section" id="mediaPlayer">
+    <!-- Reproductor de YouTube -->
+    <section class="media-section" aria-label="Reproductor multimedia">
       <div id="youtube-player"></div>
-    </div>
+    </section>
 
-    <div class="turn-section">
+    <!-- Panel de Turnos -->
+    <section class="turn-section" aria-label="Panel de turnos">
       <div class="current-call" id="currentCallCard">
         <h2>Llamado Actual</h2>
         <div class="patient-name" id="currentPatient">Esperando...</div>
@@ -186,18 +206,19 @@
         <div class="office-number" id="currentOffice">CONSULTORIO --</div>
       </div>
 
-      <div class="history-title">Últimos turnos llamados</div>
+      <h3 class="history-title">Últimos turnos llamados</h3>
       <ul class="history-list" id="historyList"></ul>
-    </div>
+    </section>
   </div>
 
-  <div class="ticker-bar">
+  <!-- Cinta informativa inferior -->
+  <footer class="ticker-bar">
     <div class="ticker-content">
       📢 Atención ART • Recuerde tener su DNI y Denuncia a mano • Mantenga el celular en silencio en la sala • Horario administrativo: 08:00 a 17:00 hs.
     </div>
-  </div>
+  </footer>
 
-  <!-- API DE YOUTUBE (VOLUMEN AL 70%) -->
+  <!-- API de YouTube (Volumen 70%) -->
   <script src="https://www.youtube.com/iframe_api"></script>
   <script>
     let ytPlayer;
@@ -217,13 +238,13 @@
           'enablejsapi': 1
         },
         events: {
-          'onReady': function(event) {
-            event.target.setVolume(70); // 🔊 Volumen 70%
-            event.target.playVideo();
+          'onReady': (e) => {
+            e.target.setVolume(70);
+            e.target.playVideo();
           },
-          'onStateChange': function(event) {
-            if (event.data === YT.PlayerState.PLAYING) {
-              event.target.setVolume(70);
+          'onStateChange': (e) => {
+            if (e.data === YT.PlayerState.PLAYING) {
+              e.target.setVolume(70);
             }
           }
         }
@@ -231,12 +252,11 @@
     };
   </script>
 
-  <!-- FIREBASE Y LÓGICA DE TURNOS -->
+  <!-- Firebase y Lógica del Turnero -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    // NUEVA CONFIGURACIÓN FIREBASE
     const firebaseConfig = {
       apiKey: "AIzaSyCoMlaioT8CBGwKvPt86MGqOSdp1sapqdU",
       authDomain: "turnero-34d14.firebaseapp.com",
@@ -248,11 +268,12 @@
     };
 
     const app = initializeApp(firebaseConfig);
-    const database = getDatabase(app);
+    const db = getDatabase(app);
 
     let turnsHistory = [];
     let initialLoad = true;
 
+    // Alerta sonora (Campana Digital)
     function playChime() {
       try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -272,10 +293,11 @@
         osc.start();
         osc.stop(audioCtx.currentTime + 0.8);
       } catch (e) {
-        console.log("Audio aguardando interacción", e);
+        console.log("Audio pendiente de interacción del usuario", e);
       }
     }
 
+    // Síntesis de voz en español argentino
     function speakTurn(text) {
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
@@ -287,8 +309,8 @@
       }
     }
 
-    const currentTurnRef = ref(database, 'currentTurn');
-    onValue(currentTurnRef, (snapshot) => {
+    // Escuchar turnos en tiempo real
+    onValue(ref(db, 'currentTurn'), (snapshot) => {
       const data = snapshot.val();
       if (!data) return;
 
@@ -299,7 +321,6 @@
       }
 
       updateUI(data.patient, data.attentionType, data.office, true);
-      
       playChime();
       setTimeout(() => {
         speakTurn(`Atención. Paciente ${data.patient}. Pasar al consultorio ${data.office}`);
@@ -328,7 +349,7 @@
         const li = document.createElement('li');
         li.className = 'history-item';
         li.innerHTML = `
-          <div class="h-info">
+          <div>
             <span class="h-patient">${t.patient}</span>
             <span class="h-type">${t.attentionType || 'General'}</span>
           </div>
