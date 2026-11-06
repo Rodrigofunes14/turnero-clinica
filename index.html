@@ -20,14 +20,13 @@
       overflow: hidden; 
     }
     
-    /* Contenedor Principal */
     .main-container { 
       display: flex; 
       flex: 1; 
       height: calc(100vh - 60px); 
     }
 
-    /* Área Izquierda: Transmisión / Publicidad (68%) */
+    /* Área Izquierda: YouTube (68%) */
     .media-section { 
       flex: 6.8; 
       background-color: #000; 
@@ -40,7 +39,7 @@
     .media-section #youtube-player { 
       width: 100%; 
       height: 100%; 
-      pointer-events: none; /* Evita clics no deseados sobre el reproductor */
+      pointer-events: none; 
     }
 
     /* Área Derecha: Turnero (32%) */
@@ -53,7 +52,6 @@
       padding: 20px; 
     }
     
-    /* Cartel de Llamado Actual */
     .current-call { 
       background: linear-gradient(135deg, #0984e3, #6c5ce7); 
       border-radius: 16px; 
@@ -64,7 +62,6 @@
       transition: transform 0.2s ease;
     }
     
-    /* Animación al ingresar turno nuevo */
     .current-call.pulse { 
       animation: pulseCard 0.8s ease; 
     }
@@ -111,7 +108,6 @@
       text-shadow: 0 1px 2px rgba(0,0,0,0.2); 
     }
 
-    /* Historial de Turnos */
     .history-title { 
       font-size: 1.1rem; 
       color: #8b949e; 
@@ -152,7 +148,6 @@
       border-radius: 6px; 
     }
 
-    /* Cinta inferior (Marquee) */
     .ticker-bar { 
       height: 60px; 
       background-color: #1f6feb; 
@@ -179,12 +174,10 @@
 <body>
 
   <div class="main-container">
-    <!-- REPRODUCTOR DE YOUTUBE CONTROLADO POR JS -->
     <div class="media-section" id="mediaPlayer">
       <div id="youtube-player"></div>
     </div>
 
-    <!-- SECCIÓN DE TURNOS DE LA CLÍNICA -->
     <div class="turn-section">
       <div class="current-call" id="currentCallCard">
         <h2>Llamado Actual</h2>
@@ -198,18 +191,17 @@
     </div>
   </div>
 
-  <!-- CINTA INFERIOR INFORMATIVA -->
   <div class="ticker-bar">
     <div class="ticker-content">
       📢 Atención ART • Recuerde tener su DNI y Denuncia a mano • Mantenga el celular en silencio en la sala • Horario administrativo: 08:00 a 17:00 hs.
     </div>
   </div>
 
-  <!-- 1. API DE YOUTUBE (VOLUMEN AL 70%) -->
+  <!-- API DE YOUTUBE (VOLUMEN AL 70%) -->
   <script src="https://www.youtube.com/iframe_api"></script>
   <script>
     let ytPlayer;
-    const VIDEO_ID = 'cb12KmMMDJA'; // Reemplazar si cambiás la transmisión o video
+    const VIDEO_ID = 'cb12KmMMDJA';
 
     window.onYouTubeIframeAPIReady = function() {
       ytPlayer = new YT.Player('youtube-player', {
@@ -226,12 +218,12 @@
         },
         events: {
           'onReady': function(event) {
-            event.target.setVolume(70); // 🔊 VOLUMEN AL 70%
+            event.target.setVolume(70); // 🔊 Volumen 70%
             event.target.playVideo();
           },
           'onStateChange': function(event) {
             if (event.data === YT.PlayerState.PLAYING) {
-              event.target.setVolume(70); // Mantiene el 70% ante cambios de estado
+              event.target.setVolume(70);
             }
           }
         }
@@ -239,19 +231,20 @@
     };
   </script>
 
-  <!-- 2. FIREBASE REALTIME DATABASE & SÍNTESIS DE VOZ -->
+  <!-- FIREBASE Y LÓGICA DE TURNOS -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
+    // NUEVA CONFIGURACIÓN FIREBASE
     const firebaseConfig = {
-      apiKey: "AIzaSyB0jx2LYqsTv0P1W3E2bz2WdE8OtDXfLFQ",
-      authDomain: "turnero-clinica-394eb.firebaseapp.com",
-      databaseURL: "https://turnero-clinica-394eb-default-rtdb.firebaseio.com",
-      projectId: "turnero-clinica-394eb",
-      storageBucket: "turnero-clinica-394eb.firebasestorage.app",
-      messagingSenderId: "757280888834",
-      appId: "1:757280888834:web:4c95a56fde05de9024ef1b"
+      apiKey: "AIzaSyCoMlaioT8CBGwKvPt86MGqOSdp1sapqdU",
+      authDomain: "turnero-34d14.firebaseapp.com",
+      databaseURL: "https://turnero-34d14-default-rtdb.firebaseio.com",
+      projectId: "turnero-34d14",
+      storageBucket: "turnero-34d14.firebasestorage.app",
+      messagingSenderId: "244772189408",
+      appId: "1:244772189408:web:cd444c47bf47e33c3c0c85"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -260,7 +253,6 @@
     let turnsHistory = [];
     let initialLoad = true;
 
-    // Tono de alerta previo al llamado (Campana Digital)
     function playChime() {
       try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -280,11 +272,10 @@
         osc.start();
         osc.stop(audioCtx.currentTime + 0.8);
       } catch (e) {
-        console.log("Audio interactivo aguardando clic del usuario", e);
+        console.log("Audio aguardando interacción", e);
       }
     }
 
-    // Voz sintética en español
     function speakTurn(text) {
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
@@ -296,7 +287,6 @@
       }
     }
 
-    // Escuchar el Realtime Database de Firebase
     const currentTurnRef = ref(database, 'currentTurn');
     onValue(currentTurnRef, (snapshot) => {
       const data = snapshot.val();
@@ -310,7 +300,6 @@
 
       updateUI(data.patient, data.attentionType, data.office, true);
       
-      // Secuencia sonora: Campana + Voz
       playChime();
       setTimeout(() => {
         speakTurn(`Atención. Paciente ${data.patient}. Pasar al consultorio ${data.office}`);
@@ -325,11 +314,10 @@
       if (triggerAnimation) {
         const card = document.getElementById('currentCallCard');
         card.classList.remove('pulse');
-        void card.offsetWidth; // Reinicia animación CSS
+        void card.offsetWidth; 
         card.classList.add('pulse');
       }
 
-      // Historial
       turnsHistory.unshift({ patient, attentionType, office });
       if (turnsHistory.length > 5) turnsHistory.pop();
 
