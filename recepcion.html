@@ -24,13 +24,13 @@
 <body>
 
   <div class="card">
-    <h2>Llamar Paciente (ART)</h2>
+    <h2>Turnero ART</h2>
     <form id="turnForm">
       <div class="form-group">
         <label for="patient">Apellido y Nombre:</label>
-        <input type="text" id="patient" placeholder="Ej: Sanchez, Marcos (ART PREVENCION)" required autocomplete="off">
+        <input type="text" id="patient" placeholder="Ej: Contalba, Mauricio" required autocomplete="off">
       </div>
-
+      
       <div class="form-group">
         <label for="attentionType">Tipo de Atención:</label>
         <select id="attentionType">
@@ -57,14 +57,14 @@
         </select>
       </div>
 
-      <button type="submit" id="btnSubmit">📢 LLAMAR A PANTALLA</button>
+     <button type="submit" id="btnSubmit">📢 LLAMAR A PANTALLA</button>
       <div id="statusMsg" class="status-msg"></div>
     </form>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, set, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyB0jx2LYqsTv0P1W3E2bz2WdE8OtDXfLFQ",
@@ -93,19 +93,13 @@
       btn.innerText = "Enviando...";
 
       try {
-        const turnData = {
+        // Guardamos únicamente el turno actual (sin bases de datos históricas pesadas)
+        await set(ref(database, 'currentTurn'), {
           patient,
           attentionType,
           office,
           timestamp: Date.now()
-        };
-
-        // 1. Actualizamos el llamado actual (para la pantalla grande)
-        await set(ref(database, 'currentTurn'), turnData);
-
-        // 2. Guardamos también en un histórico dentro de Firebase si querés llevar registro diario
-        const historyRef = ref(database, 'turnsHistory');
-        await push(historyRef, turnData);
+        });
 
         statusMsg.className = "status-msg success";
         statusMsg.innerText = "¡Turno enviado con éxito!";
