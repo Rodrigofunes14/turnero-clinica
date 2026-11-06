@@ -35,7 +35,7 @@
       border-radius: 16px; 
       box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
       width: 100%; 
-      max-width: 480px; 
+      max-width: 500px; 
     }
 
     h2 { 
@@ -105,30 +105,35 @@
 <body>
 
   <main class="card">
-    <h2>Dpto ART - POLICLINICA SAN RAFAEL - TURNERO</h2>
+    <h2>Llamar Paciente (ART)</h2>
     <form id="turnForm">
       <div class="form-group">
-        <label for="patient">Apellido y Nombre:</label>
-        <input type="text" id="patient" placeholder="Ej: Contalba, Mauricio" required autocomplete="off">
+        <label for="patient">Paciente / Apellido y Nombre:</label>
+        <input type="text" id="patient" placeholder="Ej: Pérez, Juan (Siniestro #45821)" required autocomplete="off">
       </div>
 
       <div class="form-group">
-        <label for="attentionType">Tipo de Atención:</label>
+        <label for="attentionType">Motivo / Tipo de Atención:</label>
         <select id="attentionType">
-          <option value="Consultorio Médico">Consultorio Médico Traumatología</option>
+          <option value="Control Evolutivo ART">Control Evolutivo ART</option>
+          <option value="Primera Vez / Siniestro">Primera Vez / Siniestro</option>
+          <option value="Alta Médica">Alta Médica</option>
+          <option value="Junta Médica / Auditoría">Junta Médica / Auditoría</option>
+          <option value="Curación / Estudio">Curación / Estudio</option>
         </select>
       </div>
 
       <div class="form-group">
-        <label for="office">Consultorio / Médico Asignado:</label>
-        <select id="office" required>
-          <option value="1">Dr. Gatti - Consultorio ART 1</option>
-          <option value="2">Dr. Pascuttini - Consultorio ART 2</option>
-          <option value="3">Dr. Hernández - Consultorio 8</option>
-          <option value="4">Dr. Chavarri - Consultorio ART 1</option>
-          <option value="5">Dr. Fiorentino - Consultorio ART 1</option>
-          <option value="6">Dr. Leiton - Consultorio ART 2</option>
-          <option value="7">Dr. Hermosa - Consultorio ART 1</option>
+        <label for="officeSelect">Médico y Consultorio:</label>
+        <select id="officeSelect" required>
+          <option value="" disabled selected>Seleccione profesional...</option>
+          <option value="ART 1" data-office="CONSULTORIO ART 1" data-doctor="DR. GATTI">DR. GATTI - Consultorio ART 1</option>
+          <option value="8" data-office="CONSULTORIO 8" data-doctor="DR. HERNANDEZ">DR. HERNANDEZ - Consultorio 8</option>
+          <option value="ART 2" data-office="CONSULTORIO ART 2" data-doctor="DR. PASCUTTINI">DR. PASCUTTINI - Consultorio ART 2</option>
+          <option value="ART 1" data-office="CONSULTORIO ART 1" data-doctor="DR. HERMOSA">DR. HERMOSA - Consultorio ART 1</option>
+          <option value="ART 1" data-office="CONSULTORIO ART 1" data-doctor="DR. LEITON">DR. LEITON - Consultorio ART 1</option>
+          <option value="ART 1" data-office="CONSULTORIO ART 1" data-doctor="DR. CHAVARRI">DR. CHAVARRI - Consultorio ART 1</option>
+          <option value="ART 1" data-office="CONSULTORIO ART 1" data-doctor="DR. FIORENTINO">DR. FIORENTINO - Consultorio ART 1</option>
         </select>
       </div>
 
@@ -162,7 +167,12 @@
       e.preventDefault();
       const patient = document.getElementById('patient').value.trim();
       const attentionType = document.getElementById('attentionType').value;
-      const office = document.getElementById('office').value;
+      
+      const selectOffice = document.getElementById('officeSelect');
+      const selectedOption = selectOffice.options[selectOffice.selectedIndex];
+      
+      const office = selectedOption.getAttribute('data-office');
+      const doctor = selectedOption.getAttribute('data-doctor');
 
       btnSubmit.disabled = true;
       btnSubmit.innerText = "Enviando...";
@@ -172,6 +182,7 @@
           patient,
           attentionType,
           office,
+          doctor,
           timestamp: Date.now()
         });
 
