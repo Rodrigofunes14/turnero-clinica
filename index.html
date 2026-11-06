@@ -1,4 +1,224 @@
-<!-- API de YouTube (Volumen 70%) -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DEPARTAMENTO DE ART - POLICLINICA SAN RAFAEL</title>
+  <style>
+    :root {
+      --bg-main: #0d1117;
+      --panel-bg: #161b22;
+      --border-color: #30363d;
+      --accent-blue: #0984e3;
+      --accent-cyan: #00d2d3;
+      --text-main: #f0f6fc;
+      --text-muted: #8b949e;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    
+    body { 
+      display: flex; 
+      flex-direction: column; 
+      height: 100vh; 
+      background-color: var(--bg-main); 
+      color: var(--text-main); 
+      overflow: hidden; 
+    }
+    
+    .main-container { 
+      display: flex; 
+      flex: 1; 
+      height: calc(100vh - 60px); 
+    }
+
+    /* Sección Izquierda: YouTube (68%) */
+    .media-section { 
+      flex: 6.8; 
+      background-color: #000; 
+      position: relative; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      overflow: hidden; 
+    }
+    .media-section #youtube-player { 
+      width: 100%; 
+      height: 100%; 
+      pointer-events: none; 
+    }
+
+    /* Sección Derecha: Turnero (32%) */
+    .turn-section { 
+      flex: 3.2; 
+      background-color: var(--panel-bg); 
+      border-left: 4px solid var(--accent-cyan); 
+      display: flex; 
+      flex-direction: column; 
+      padding: 20px; 
+    }
+    
+    /* Cartel de Llamado Actual */
+    .current-call { 
+      background: linear-gradient(135deg, #0984e3, #6c5ce7); 
+      border-radius: 16px; 
+      padding: 25px; 
+      text-align: center; 
+      margin-bottom: 20px; 
+      box-shadow: 0 10px 25px rgba(0,0,0,0.6); 
+      transition: transform 0.2s ease;
+    }
+    
+    .current-call.pulse { 
+      animation: pulseCard 0.8s ease; 
+    }
+    
+    @keyframes pulseCard {
+      0% { transform: scale(1); filter: brightness(1); }
+      50% { transform: scale(1.03); filter: brightness(1.25); background: linear-gradient(135deg, #00b894, #0984e3); }
+      100% { transform: scale(1); filter: brightness(1); }
+    }
+
+    .current-call h2 { 
+      font-size: 1.3rem; 
+      text-transform: uppercase; 
+      letter-spacing: 2px; 
+      color: #dfe6e9; 
+      margin-bottom: 5px; 
+    }
+
+    .patient-name { 
+      font-size: 2.5rem; 
+      font-weight: 800; 
+      margin: 10px 0; 
+      color: #fff; 
+      word-break: break-word; 
+      line-height: 1.2; 
+    }
+
+    .attention-badge { 
+      font-size: 1rem; 
+      background: rgba(0,0,0,0.3); 
+      padding: 5px 12px; 
+      border-radius: 20px; 
+      display: inline-block; 
+      margin-bottom: 12px; 
+      color: #74b9ff; 
+      font-weight: 600; 
+    }
+
+    .office-number { 
+      font-size: 2rem; 
+      background: #ff7675; 
+      padding: 10px; 
+      border-radius: 10px; 
+      font-weight: bold; 
+      display: block; 
+      width: 100%; 
+      color: #fff; 
+      text-shadow: 0 1px 2px rgba(0,0,0,0.2); 
+    }
+
+    /* Historial */
+    .history-title { 
+      font-size: 1.1rem; 
+      color: var(--text-muted); 
+      margin-bottom: 12px; 
+      text-transform: uppercase; 
+      border-bottom: 1px solid var(--border-color); 
+      padding-bottom: 6px; 
+      font-weight: bold; 
+    }
+
+    .history-list { 
+      list-style: none; 
+      overflow-y: auto; 
+      flex: 1; 
+      padding-right: 4px; 
+    }
+    
+    .history-list::-webkit-scrollbar { width: 6px; }
+    .history-list::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+    
+    .history-item { 
+      background: #21262d; 
+      padding: 12px 14px; 
+      border-radius: 8px; 
+      margin-bottom: 10px; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      border-left: 3px solid var(--accent-blue); 
+    }
+
+    .history-item .h-patient { font-size: 1.1rem; font-weight: bold; color: var(--text-main); display: block; }
+    .history-item .h-type { font-size: 0.8rem; color: var(--text-muted); display: block; }
+    
+    .history-item .h-office { 
+      color: #58a6ff; 
+      font-weight: bold; 
+      font-size: 1.1rem; 
+      background: rgba(88, 166, 255, 0.1); 
+      padding: 5px 10px; 
+      border-radius: 6px; 
+    }
+
+    /* Cinta inferior (Marquee) */
+    .ticker-bar { 
+      height: 60px; 
+      background-color: #1f6feb; 
+      color: white; 
+      display: flex; 
+      align-items: center; 
+      overflow: hidden; 
+      white-space: nowrap; 
+      font-size: 1.4rem; 
+      font-weight: bold; 
+      box-shadow: 0 -4px 10px rgba(0,0,0,0.3); 
+    }
+
+    .ticker-content { 
+      display: inline-block; 
+      padding-left: 100%; 
+      animation: marquee 30s linear infinite; 
+    }
+
+    @keyframes marquee { 
+      0% { transform: translate(0, 0); } 
+      100% { transform: translate(-100%, 0); } 
+    }
+  </style>
+</head>
+<body>
+
+  <div class="main-container">
+    <!-- Reproductor de YouTube -->
+    <section class="media-section" aria-label="Reproductor multimedia">
+      <div id="youtube-player"></div>
+    </section>
+
+    <!-- Panel de Turnos -->
+    <section class="turn-section" aria-label="Panel de turnos">
+      <div class="current-call" id="currentCallCard">
+        <h2>Llamado Actual</h2>
+        <div class="patient-name" id="currentPatient">Esperando...</div>
+        <div class="attention-badge" id="currentAttentionType">--</div>
+        <div class="office-number" id="currentOffice">CONSULTORIO --</div>
+      </div>
+
+      <h3 class="history-title">Últimos turnos llamados</h3>
+      <ul class="history-list" id="historyList"></ul>
+    </section>
+  </div>
+
+  <!-- Cinta informativa inferior -->
+  <footer class="ticker-bar">
+    <div class="ticker-content">
+      POLICLINICA SAN RAFAEL NO ES UNA ART // ESPECIALIDADES: ORTOPEDIA Y TRAUMATOLOGÍA CON ESPECIALISTAS EN MIEMBRO SUPERIOR, INFERIOR, ARTROSCOPISTAS Y NIÑOS - NEUROCIRUGÍA - CARDIOLOGÍA - CIRUGÍA PLÁSTICA Y GENERAL - INFECTOLOGÍA - CLÍNICA MÉDICA - OFTALMOLOGÍA - PSICOLOGÍA - UROLOGÍA - GINECOLOGÍA // RECUERDE TRAER LA DENUNCIA DE SINIESTRO // ANTENCION ADMINISTRATIVA DE 08:00 A 17:00 HS
+    </div>
+  </footer>
+
+  <!-- API de YouTube (Volumen 70%) -->
   <script src="https://www.youtube.com/iframe_api"></script>
   <script>
     let ytPlayer;
@@ -93,14 +313,13 @@
     // Síntesis de voz mejorada y forzada
     function speakTurn(text) {
       if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel(); // Cancela cualquier eco anterior
+        window.speechSynthesis.cancel();
         
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'es-AR';
-        utterance.rate = 0.90; // Ligeramente más pausado para que se entienda claro en la sala
+        utterance.rate = 0.90; 
         utterance.pitch = 1.0;
 
-        // Intentar asignar una voz en español explícita si el sistema la tiene
         const voices = window.speechSynthesis.getVoices();
         const spanishVoice = voices.find(v => v.lang.includes('es') || v.lang.includes('ES'));
         if (spanishVoice) {
@@ -127,7 +346,6 @@
       updateUI(data.patient, data.attentionType, data.office, true);
       playChime();
       
-      // Damos un pequeño margen para que suene la campana y luego habla
       setTimeout(() => {
         speakTurn(`Atención. Paciente ${data.patient}. Pasar al consultorio ${data.office}`);
       }, 500);
@@ -165,3 +383,5 @@
       });
     }
   </script>
+</body>
+</html>
