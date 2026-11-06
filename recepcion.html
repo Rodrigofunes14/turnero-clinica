@@ -2,80 +2,120 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Panel de Recepción - Firebase</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Recepción ART - Clínica</title>
   <style>
-    * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-    body { background-color: #f4f6f9; padding: 30px; display: flex; justify-content: center; }
-    .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 450px; }
-    h2 { color: #2c3e50; margin-bottom: 20px; text-align: center; }
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: #f4f6f9; padding: 30px; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+    .card { background: white; padding: 30px; border-radius: 14px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
+    h2 { color: #2c3e50; margin-bottom: 25px; text-align: center; font-size: 1.6rem; border-bottom: 2px solid #0984e3; padding-bottom: 10px; }
     .form-group { margin-bottom: 20px; }
-    label { display: block; margin-bottom: 8px; font-weight: bold; color: #34495e; }
-    input, select { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; }
-    input:focus, select:focus { border-color: #0984e3; outline: none; }
-    button { width: 100%; padding: 15px; background-color: #00b894; color: white; border: none; border-radius: 8px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+    label { display: block; margin-bottom: 8px; font-weight: 600; color: #34495e; }
+    input, select { width: 100%; padding: 12px; border: 2px solid #dfe6e9; border-radius: 8px; font-size: 1rem; transition: border-color 0.2s; }
+    input:focus, select:focus { border-color: #0984e3; outline: none; box-shadow: 0 0 5px rgba(9, 132, 227, 0.3); }
+    button { width: 100%; padding: 16px; background-color: #00b894; color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: background 0.2s, transform 0.1s; }
     button:hover { background-color: #00a884; }
+    button:active { transform: scale(0.98); }
+    .status-msg { margin-top: 15px; text-align: center; font-weight: bold; font-size: 0.95rem; min-height: 24px; }
+    .success { color: #00b894; }
+    .error { color: #d63031; }
   </style>
 </head>
 <body>
 
   <div class="card">
-    <h2>Llamar Paciente (Firebase)</h2>
+    <h2>Llamar Paciente (ART)</h2>
     <form id="turnForm">
       <div class="form-group">
-        <label for="patient">Nombre del Paciente / Número:</label>
-        <input type="text" id="patient" placeholder="Ej: Juan Pérez o A-102" required autocomplete="off">
+        <label for="patient">Paciente / Apellido y Nombre:</label>
+        <input type="text" id="patient" placeholder="Ej: Pérez, Juan (Siniestro #45821)" required autocomplete="off">
       </div>
 
       <div class="form-group">
-        <label for="office">Consultorio / Box:</label>
+        <label for="attentionType">Tipo de Atención:</label>
+        <select id="attentionType">
+          <option value="Consultorio Médico">Consultorio Médico / Traumatología</option>
+          <option value="Kinesiología">Kinesiología / Rehabilitación</option>
+          <option value="Control / Admisión">Control / Auditoría Médica</option>
+          <option value="Psicología / Legal">Evaluación / Junta Médica</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="office">Consultorio / Box Asignado:</label>
         <select id="office" required>
           <option value="1">Consultorio 1</option>
           <option value="2">Consultorio 2</option>
           <option value="3">Consultorio 3</option>
           <option value="4">Consultorio 4</option>
-          <option value="5">Consultorio 5</option>
+          <option value="5">Box de Kinesiología</option>
         </select>
       </div>
 
-      <button type="submit">📢 LLAMAR A PANTALLA</button>
+      <button type="submit" id="btnSubmit">📢 LLAMAR A PANTALLA</button>
+      <div id="statusMsg" class="status-msg"></div>
     </form>
   </div>
 
-  <!-- SDKs de Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase, ref, set, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    // FIREBASE ⚠️
-   const firebaseConfig = {
-  apiKey: "AIzaSyB0jx2LYqsTv0P1W3E2bz2WdE8OtDXfLFQ",
-  authDomain: "turnero-clinica-394eb.firebaseapp.com",
-  databaseURL: "https://turnero-clinica-394eb-default-rtdb.firebaseio.com",
-  projectId: "turnero-clinica-394eb",
-  storageBucket: "turnero-clinica-394eb.firebasestorage.app",
-  messagingSenderId: "757280888834",
-  appId: "1:757280888834:web:4c95a56fde05de9024ef1b"
-};
+    const firebaseConfig = {
+      apiKey: "AIzaSyB0jx2LYqsTv0P1W3E2bz2WdE8OtDXfLFQ",
+      authDomain: "turnero-clinica-394eb.firebaseapp.com",
+      databaseURL: "https://turnero-clinica-394eb-default-rtdb.firebaseio.com",
+      projectId: "turnero-clinica-394eb",
+      storageBucket: "turnero-clinica-394eb.firebasestorage.app",
+      messagingSenderId: "757280888834",
+      appId: "1:757280888834:web:4c95a56fde05de9024ef1b"
+    };
 
     const app = initializeApp(firebaseConfig);
     const database = getDatabase(app);
 
-    document.getElementById('turnForm').addEventListener('submit', (e) => {
+    const form = document.getElementById('turnForm');
+    const statusMsg = document.getElementById('statusMsg');
+
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const patient = document.getElementById('patient').value.trim();
+      const attentionType = document.getElementById('attentionType').value;
       const office = document.getElementById('office').value;
+      const btn = document.getElementById('btnSubmit');
 
-      // Enviar el turno a Firebase
-      set(ref(database, 'currentTurn'), {
-        patient: patient,
-        office: office,
-        timestamp: Date.now()
-      }).then(() => {
-        document.getElementById('patient').value = '';
+      btn.disabled = true;
+      btn.innerText = "Enviando...";
+
+      try {
+        const turnData = {
+          patient,
+          attentionType,
+          office,
+          timestamp: Date.now()
+        };
+
+        // 1. Actualizamos el llamado actual (para la pantalla grande)
+        await set(ref(database, 'currentTurn'), turnData);
+
+        // 2. Guardamos también en un histórico dentro de Firebase si querés llevar registro diario
+        const historyRef = ref(database, 'turnsHistory');
+        await push(historyRef, turnData);
+
+        statusMsg.className = "status-msg success";
+        statusMsg.innerText = "¡Turno enviado con éxito!";
+        
+        form.reset();
         document.getElementById('patient').focus();
-      }).catch((err) => {
-        alert("Error al enviar turno: " + err.message);
-      });
+        
+        setTimeout(() => { statusMsg.innerText = ""; }, 3000);
+      } catch (err) {
+        statusMsg.className = "status-msg error";
+        statusMsg.innerText = "Error: " + err.message;
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "📢 LLAMAR A PANTALLA";
+      }
     });
   </script>
 </body>
